@@ -1,0 +1,260 @@
+// Prisma schema for the digital wallpaper unlock platform.
+//
+// Local dev runs on SQLite with zero setup. To move to Supabase:
+//   1. Change `provider = "sqlite"` below to `provider = "postgresql"`
+//   2. Point DATABASE_URL at your Supabase connection string
+//   3. Run `npx prisma migrate deploy`
+// All field types used here are Postgres-compatible, so that's the whole migration.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NOTE: SQLite has no native enum support in Prisma, so the "enum" fields below
+// are modeled as String and constrained by TS union types + zod schemas in
+// src/lib/types.ts / src/lib/validation.ts instead. When migrating to
+// Postgres/Supabase, these can optionally be promoted to real `enum` blocks
+// (values below are identical to what the app code already enforces):
+//
+// ProductType:         WALLPAPER | PROMPT | BUNDLE
+// UnlockMethod:        AD | SURVEY | REFERRAL
+// ProgressStatus:      PENDING | COMPLETED
+// ReferralStatus:      PENDING | COMPLETED | REJECTED
+// AnalyticsEventType:  PRODUCT_VIEWED | UNLOCK_METHOD_SELECTED | AD_COMPLETED |
+//                      SURVEY_COMPLETED | REFERRAL_SHARED | REFERRAL_COMPLETED |
+//                      PRODUCT_UNLOCKED | PRODUCT_DOWNLOADED
+
+// Represents a browser session first, optionally upgraded with an email later.
+// No password / auth provider for the MVP consumer side.
+model User {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  email     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  unlockProgress     UnlockProgress[]
+  adCompletions      AdCompletion[]
+  surveyCompletions  SurveyCompletion[]
+  referralsCreated   Referral[]          @relation("ReferrerUser")
+  referralsReceived  Referral[]          @relation("ReferredUser")
+  downloads          Download[]
+  savedProducts      SavedProduct[]
+  analyticsEvents    AnalyticsEvent[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  products ProductCategory[]
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  products ProductTag[]
+}
+
+model ProductTag {
+  productId String
+  tagId     String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+}
+
+model Product {
+  id                String      @id @default(cuid())
+  slug              String      @unique
+  title             String
+  description       String
+  type              String // ProductType: WALLPAPER | PROMPT | BUNDLE
+  resolution        String
+  fileFormat        String
+  deviceType        String
+  previewImageSeed  String
+  isFeatured        Boolean     @default(false)
+  isTrending        Boolean     @default(false)
+  isActive          Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  categories         ProductCategory[]
+  tags               ProductTag[]
+  files              ProductFile[]
+  unlockRequirements UnlockRequirement[]
+  unlockProgress     UnlockProgress[]
+  adCompletions      AdCompletion[]
+  surveyCompletions  SurveyCompletion[]
+  referrals          Referral[]
+  downloads          Download[]
+  savedBy            SavedProduct[]
+  analyticsEvents    AnalyticsEvent[]
+}
+
+model ProductFile {
+  id        String   @id @default(cuid())
+  productId String
+  kind      String // "preview" | "download"
+  label     String? // e.g. "Desktop" / "Phone" — shown in the downloaded filename when there are multiple download files
+  sortOrder Int      @default(0)
+  seed      String
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  downloads Download[]
+
+  @@index([productId])
+}
+
+// Admin-configurable requirement per product per unlock method.
+model UnlockRequirement {
+  id          String       @id @default(cuid())
+  productId   String
+  method      String // UnlockMethod: AD | SURVEY | REFERRAL
+  enabled     Boolean      @default(true)
+  targetCount Int          @default(1)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, method])
+}
+
+// Per-user, per-product, per-method progress. Product-level unlock status is
+// derived (not stored): unlocked if ANY row here is COMPLETED for that user+product.
+model UnlockProgress {
+  id           String    @id @default(cuid())
+  userId       String
+  productId    String
+  method       String // UnlockMethod: AD | SURVEY | REFERRAL
+  currentCount Int       @default(0)
+  targetCount  Int
+  status       String    @default("PENDING") // ProgressStatus: PENDING | COMPLETED
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId, method])
+}
+
+model AdCompletion {
+  id             String   @id @default(cuid())
+  userId         String
+  productId      String
+  sequenceNumber Int
+  completedAt    DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId, productId])
+}
+
+model SurveyCompletion {
+  id              String   @id @default(cuid())
+  userId          String
+  productId       String
+  responsePayload String
+  completedAt     DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId, productId])
+}
+
+model Referral {
+  id                         String    @id @default(cuid())
+  code                       String    @unique
+  productId                  String
+  referrerUserId             String
+  referredUserId             String?
+  referredSessionFingerprint String?
+  status                     String    @default("PENDING") // ReferralStatus: PENDING | COMPLETED | REJECTED
+  actionCompleted            Boolean   @default(false)
+  referrerCredited           Boolean   @default(false)
+  createdAt                  DateTime  @default(now())
+  completedAt                DateTime?
+
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  referrer     User    @relation("ReferrerUser", fields: [referrerUserId], references: [id], onDelete: Cascade)
+  referredUser User?   @relation("ReferredUser", fields: [referredUserId], references: [id], onDelete: SetNull)
+
+  @@unique([referrerUserId, productId])
+  @@index([productId])
+}
+
+model Download {
+  id            String   @id @default(cuid())
+  userId        String
+  productId     String
+  productFileId String
+  // Not unique: one download action can log multiple rows (one per bundled
+  // file) sharing the same token. `token` is only used for the idempotency
+  // check (has this token already been logged?), not as a lookup key.
+  token         String
+  downloadedAt  DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productFile ProductFile @relation(fields: [productFileId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model SavedProduct {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      String // AnalyticsEventType, see list above
+  productId String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([createdAt])
+}
