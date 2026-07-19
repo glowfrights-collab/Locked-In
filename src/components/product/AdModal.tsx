@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PlayIcon } from "@/components/ui/Icons";
+import { triggerMonetagInPagePush } from "@/lib/ads/monetag";
 
 const AD_DURATION_SECONDS = 6;
 
@@ -18,6 +19,7 @@ export function AdModal({
 
   useEffect(() => {
     if (!open) return;
+    triggerMonetagInPagePush();
     setSecondsLeft(AD_DURATION_SECONDS);
     const interval = setInterval(() => {
       setSecondsLeft((s) => Math.max(0, s - 1));
