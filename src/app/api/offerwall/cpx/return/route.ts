@@ -22,5 +22,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/", origin));
   }
 
-  return NextResponse.redirect(new URL(`/product/${product.slug}`, origin));
+  return NextResponse.redirect(new URL(`/product/${product.slug}?survey=done`, origin));
 }
