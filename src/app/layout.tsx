@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,6 +34,9 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen bg-surface font-sans text-ink">
         {children}
+        <Script id="monetag-onclick" strategy="beforeInteractive">
+          {`(function(s){s.dataset.zone='11348807',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))`}
+        </Script>
       </body>
     </html>
   );
