@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PlayIcon } from "@/components/ui/Icons";
+import { triggerMonetagAd } from "@/lib/ads/monetag";
 
 const AD_DURATION_SECONDS = 6;
 
@@ -18,6 +19,7 @@ export function AdModal({
 
   useEffect(() => {
     if (!open) return;
+    triggerMonetagAd();
     setSecondsLeft(AD_DURATION_SECONDS);
     const interval = setInterval(() => {
       setSecondsLeft((s) => Math.max(0, s - 1));
@@ -41,7 +43,7 @@ export function AdModal({
         <p className="mt-1 text-sm text-ink-soft">
           {done
             ? "Thanks for watching. Your progress has been saved."
-            : `This mock ad simulates a real rewarded-ad network. ${secondsLeft}s remaining.`}
+            : `Please wait while the ad plays. ${secondsLeft}s remaining.`}
         </p>
 
         <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-surface-muted">
