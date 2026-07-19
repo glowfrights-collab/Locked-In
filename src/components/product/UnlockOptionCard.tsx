@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { CheckIcon, PlayIcon, ClipboardIcon } from "@/components/ui/Icons";
 import { AdModal } from "@/components/product/AdModal";
-import { SurveyForm } from "@/components/product/SurveyForm";
+import { CpxOfferwall } from "@/components/product/CpxOfferwall";
 import { ReferralPanel } from "@/components/product/ReferralPanel";
 import { useTrackEvent } from "@/components/analytics/TrackEvent";
 import type { UnlockMethod, UnlockMethodProgress } from "@/lib/types";
@@ -27,7 +27,6 @@ export function UnlockOptionCard({
   const track = useTrackEvent();
   const [progress, setProgress] = useState(initialProgress);
   const [adOpen, setAdOpen] = useState(false);
-  const [surveyOpen, setSurveyOpen] = useState(false);
 
   const meta = METHOD_META[progress.method];
   const Icon = meta.icon;
@@ -45,18 +44,6 @@ export function UnlockOptionCard({
       body: JSON.stringify({ productId }),
     });
     const data = await res.json();
-    setProgress(data.progress);
-    if (data.productStatus === "Unlocked") onUnlocked();
-  }
-
-  async function handleSurveySubmit(answers: Record<string, string>) {
-    const res = await fetch("/api/unlock/survey/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, answers }),
-    });
-    const data = await res.json();
-    setSurveyOpen(false);
     setProgress(data.progress);
     if (data.productStatus === "Unlocked") onUnlocked();
   }
@@ -105,26 +92,12 @@ export function UnlockOptionCard({
         </>
       )}
 
-      {progress.method === "SURVEY" && (
-        <>
-          <button
-            onClick={() => {
-              if (completed) return;
-              selectMethod();
-              setSurveyOpen(true);
-            }}
-            disabled={completed}
-            className="h-11 w-full rounded-full bg-ink text-sm font-medium text-white disabled:opacity-50"
-          >
-            {completed ? "Completed" : "Start survey"}
-          </button>
-          <SurveyForm
-            open={surveyOpen}
-            onClose={() => setSurveyOpen(false)}
-            onSubmit={handleSurveySubmit}
-          />
-        </>
-      )}
+      {progress.method === "SURVEY" &&
+        (completed ? (
+          <p className="text-xs font-medium text-success">Survey completed</p>
+        ) : (
+          <CpxOfferwall productId={productId} onUnlocked={onUnlocked} />
+        ))}
 
       {progress.method === "REFERRAL" &&
         (completed ? (

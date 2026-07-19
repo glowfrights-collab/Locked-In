@@ -121,24 +121,11 @@ export async function recordAdView(userId: string, productId: string, targetCoun
   return incrementProgress(userId, productId, "AD", 1, targetCount);
 }
 
-export async function recordSurveyCompletion(
-  userId: string,
-  productId: string,
-  answers: Record<string, string>
-) {
-  await prisma.surveyCompletion.create({
-    data: { userId, productId, responsePayload: JSON.stringify(answers) },
-  });
-
-  // Survey targetCount is always 1 in the MVP.
-  return incrementProgress(userId, productId, "SURVEY", 1, 1);
-}
-
 /**
- * Same as recordSurveyCompletion, but for real survey-vendor postbacks
- * (server-to-server, no browser session). Idempotent on
- * externalTransactionId — returns null if this transaction was already
- * processed, so the caller can skip re-crediting on a retried postback.
+ * Records a real survey-vendor postback (server-to-server, no browser
+ * session). Idempotent on externalTransactionId — returns null if this
+ * transaction was already processed, so the caller can skip re-crediting on
+ * a retried postback. Survey targetCount is always 1 in the MVP.
  */
 export async function recordSurveyCompletionExternal(
   userId: string,
