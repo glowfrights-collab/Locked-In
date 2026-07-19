@@ -51,6 +51,10 @@ export function DownloadFileCard({
           className="h-full w-full object-cover"
         />
       </div>
+      <p className="text-center text-xs text-ink-faint">
+        On phone: press and hold the image above, then choose &ldquo;Add to Photos&rdquo; or
+        &ldquo;Download image&rdquo; — no separate download needed.
+      </p>
       <button
         onClick={handleDownload}
         disabled={loading}

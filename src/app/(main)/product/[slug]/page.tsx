@@ -118,11 +118,6 @@ export default async function ProductPage({
 
       {unlocked && (
         <>
-          <p className="text-center text-xs text-ink-faint">
-            On iPhone, tap and hold the downloaded image to save it to Photos. On Android, check
-            your Downloads folder or notification tray.
-          </p>
-
           <EmailCaptureForm />
 
           {similar.length > 0 && (
