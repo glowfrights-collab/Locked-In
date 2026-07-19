@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Unlock — Free Wallpapers & AI Prompts",
   description:
     "Unlock premium wallpapers, AI prompts and themed art collections for free — watch an ad, complete a survey, or refer a friend.",
+  other: {
+    monetag: "d71bb5f67ea780045bed28870e3ae576",
+  },
 };
 
 export const viewport: Viewport = {
