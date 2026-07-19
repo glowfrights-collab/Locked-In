@@ -96,7 +96,7 @@ export function UnlockOptionCard({
         (completed ? (
           <p className="text-xs font-medium text-success">Survey completed</p>
         ) : (
-          <CpxOfferwall productId={productId} onUnlocked={onUnlocked} />
+          <CpxOfferwall productId={productId} />
         ))}
 
       {progress.method === "REFERRAL" &&
