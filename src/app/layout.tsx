@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     "Unlock premium wallpapers, AI prompts and themed art collections for free — watch an ad, complete a survey, or refer a friend.",
   other: {
     monetag: "d71bb5f67ea780045bed28870e3ae576",
+    "6a97888e-site-verification": "3dd67601634143566ecc7f7126df7806",
   },
 };
 
