@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { UnlockOptionCard } from "@/components/product/UnlockOptionCard";
 import { DownloadFilesSection } from "@/components/product/DownloadFilesSection";
+import { SurveyCompleteModal } from "@/components/product/SurveyCompleteModal";
 import type { UnlockMethodProgress } from "@/lib/types";
 
 type DownloadFile = { id: string; seed: string; label: string | null };
@@ -19,9 +20,15 @@ export function ProductUnlockSection({
   downloadFiles: DownloadFile[];
 }) {
   const [unlocked, setUnlocked] = useState(initialUnlocked);
+  const [showSurveyComplete, setShowSurveyComplete] = useState(false);
 
   if (unlocked) {
-    return <DownloadFilesSection productId={productId} files={downloadFiles} />;
+    return (
+      <>
+        {showSurveyComplete && <SurveyCompleteModal />}
+        <DownloadFilesSection productId={productId} files={downloadFiles} />
+      </>
+    );
   }
 
   // "Watch ad" is temporarily hidden until a working ad network is in place.
@@ -38,7 +45,10 @@ export function ProductUnlockSection({
           key={m.method}
           productId={productId}
           progress={m}
-          onUnlocked={() => setUnlocked(true)}
+          onUnlocked={() => {
+            if (m.method === "SURVEY") setShowSurveyComplete(true);
+            setUnlocked(true);
+          }}
         />
       ))}
     </div>

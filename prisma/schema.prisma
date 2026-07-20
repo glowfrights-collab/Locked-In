@@ -184,7 +184,7 @@ model SurveyCompletion {
   userId          String
   productId       String
   responsePayload String
-  // Dedupe key for real survey vendor postbacks (e.g. CPX Research's trans_id) — null for the mock survey form.
+  // Dedupe key for real survey vendor postbacks (e.g. BitLabs' tx id) — null for the mock survey form.
   externalTransactionId String? @unique
   completedAt     DateTime @default(now())
 

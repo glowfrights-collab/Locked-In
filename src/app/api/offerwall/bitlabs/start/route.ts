@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getOrCreateSessionUser } from "@/lib/session";
-import { buildCpxOfferwallUrl } from "@/lib/offerwall/cpx";
+import { buildBitlabsOfferwallUrl } from "@/lib/offerwall/bitlabs";
 import { productIdSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -23,6 +23,6 @@ export async function POST(request: Request) {
   }
 
   const user = await getOrCreateSessionUser();
-  const offerwallUrl = buildCpxOfferwallUrl(user.id, productId);
+  const offerwallUrl = buildBitlabsOfferwallUrl(user.id, productId);
   return NextResponse.json({ offerwallUrl });
 }

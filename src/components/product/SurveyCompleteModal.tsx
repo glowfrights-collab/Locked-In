@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CheckIcon } from "@/components/ui/Icons";
 
-/** Shown once when the user lands back on the product page right after finishing a real CPX survey. */
+/** Shown once the moment a real BitLabs survey completion is detected. */
 export function SurveyCompleteModal() {
   const [open, setOpen] = useState(true);
 
