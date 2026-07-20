@@ -18,8 +18,10 @@ export function UnlockRequirementLabel({
 }: {
   methods: { method: UnlockMethod; targetCount: number }[];
 }) {
-  if (methods.length === 0) return null;
-  const primary = [...methods].sort((a, b) => a.targetCount - b.targetCount)[0];
+  // "Watch ad" is temporarily hidden until a working ad network is in place — see ProductUnlockSection.
+  const visible = methods.filter((m) => m.method !== "AD");
+  if (visible.length === 0) return null;
+  const primary = [...visible].sort((a, b) => a.targetCount - b.targetCount)[0];
   return <Badge tone="neutral">{labelFor(primary.method, primary.targetCount)}</Badge>;
 }
 
