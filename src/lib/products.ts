@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 
 const summaryInclude = {
   categories: { include: { category: true } },
+  tags: { include: { tag: true } },
   unlockRequirements: { where: { enabled: true } },
 } satisfies Prisma.ProductInclude;
 
@@ -20,6 +21,7 @@ export function toProductSummary(product: ProductWithRelations): ProductSummary 
     isFeatured: product.isFeatured,
     isTrending: product.isTrending,
     categories: product.categories.map((c) => c.category.name),
+    tags: product.tags.map((t) => t.tag.name),
     unlockMethods: product.unlockRequirements.map((r) => ({
       method: r.method as UnlockMethod,
       targetCount: r.targetCount,

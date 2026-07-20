@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 
 const summaryInclude = {
   categories: { include: { category: true } },
+  tags: { include: { tag: true } },
   unlockRequirements: { where: { enabled: true } },
 } satisfies Prisma.ProductInclude;
 

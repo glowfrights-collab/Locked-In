@@ -46,5 +46,6 @@ export type ProductSummary = {
   isFeatured: boolean;
   isTrending: boolean;
   categories: string[];
+  tags: string[];
   unlockMethods: { method: UnlockMethod; targetCount: number }[];
 };
