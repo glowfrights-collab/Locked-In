@@ -9,6 +9,7 @@ import { DOWNLOAD_WIDTH, DOWNLOAD_HEIGHT } from "@/lib/images";
 import { PreviewButton } from "@/components/product/PreviewButton";
 import { SaveButton } from "@/components/product/SaveButton";
 import { ProductUnlockSection } from "@/components/product/ProductUnlockSection";
+import { SurveyCompleteModal } from "@/components/product/SurveyCompleteModal";
 import { ProductPageAd } from "@/components/product/ProductPageAd";
 import { EmailCaptureForm } from "@/components/product/EmailCaptureForm";
 import { ProductGrid } from "@/components/product/ProductGrid";
@@ -19,7 +20,7 @@ export default async function ProductPage({
   searchParams,
 }: {
   params: { slug: string };
-  searchParams: { ref?: string };
+  searchParams: { ref?: string; survey?: string };
 }) {
   const product = await getProductBySlug(params.slug);
   if (!product || !product.isActive) {
@@ -54,6 +55,8 @@ export default async function ProductPage({
   return (
     <div className="flex flex-col gap-6 px-4 py-4">
       <ProductPageAd />
+
+      {unlocked && searchParams.survey === "done" && <SurveyCompleteModal />}
 
       {searchParams.ref === "welcome" && (
         <div className="rounded-2xl bg-accent-soft px-4 py-3 text-sm font-medium text-accent">

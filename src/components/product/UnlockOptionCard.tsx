@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { CheckIcon, PlayIcon, ClipboardIcon } from "@/components/ui/Icons";
 import { AdModal } from "@/components/product/AdModal";
-import { BitlabsOfferwall } from "@/components/product/BitlabsOfferwall";
+import { CpxOfferwall } from "@/components/product/CpxOfferwall";
 import { ReferralPanel } from "@/components/product/ReferralPanel";
 import { useTrackEvent } from "@/components/analytics/TrackEvent";
 import type { UnlockMethod, UnlockMethodProgress } from "@/lib/types";
@@ -96,7 +96,7 @@ export function UnlockOptionCard({
         (completed ? (
           <p className="text-xs font-medium text-success">Survey completed</p>
         ) : (
-          <BitlabsOfferwall productId={productId} onUnlocked={onUnlocked} />
+          <CpxOfferwall productId={productId} />
         ))}
 
       {progress.method === "REFERRAL" &&
