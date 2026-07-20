@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { triggerMonetagInPagePushOnce } from "@/lib/ads/monetag";
+import { triggerMonetagInPagePush } from "@/lib/ads/monetag";
 
-/** Renders nothing — just triggers the once-per-session In-Page Push ad on mount. */
+/** Renders nothing — just triggers a fresh In-Page Push ad every time a product page mounts. */
 export function ProductPageAd() {
   useEffect(() => {
-    triggerMonetagInPagePushOnce();
+    triggerMonetagInPagePush();
   }, []);
   return null;
 }
