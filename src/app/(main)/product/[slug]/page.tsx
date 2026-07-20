@@ -10,7 +10,6 @@ import { PreviewButton } from "@/components/product/PreviewButton";
 import { SaveButton } from "@/components/product/SaveButton";
 import { ProductUnlockSection } from "@/components/product/ProductUnlockSection";
 import { SurveyCompleteModal } from "@/components/product/SurveyCompleteModal";
-import { ProductPagePopunder } from "@/components/product/ProductPagePopunder";
 import { EmailCaptureForm } from "@/components/product/EmailCaptureForm";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { Badge } from "@/components/ui/Badge";
@@ -54,8 +53,6 @@ export default async function ProductPage({
 
   return (
     <div className="flex flex-col gap-6 px-4 py-4">
-      <ProductPagePopunder />
-
       {unlocked && searchParams.survey === "done" && <SurveyCompleteModal />}
 
       {searchParams.ref === "welcome" && (
